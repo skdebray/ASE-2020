@@ -1,0 +1,30 @@
+.PHONY: all clean  
+
+CC = gcc
+XEDPATH = ../xed
+CFILES =  ../shared/XedLynxReg.c \
+	../shared/LynxReg.c \
+	../shared/XedDisassembler.c \
+	Buf.c \
+	ReaderUtils.c \
+	ShadowMemory.c \
+	ShadowRegisters.c \
+	DataOpsReader.c \
+	Verify.c \
+	Reader.c
+OFILES = $(CFILES:c=o)
+CFLAGS = -Wall -O2 -g -c
+INCLUDES = -I$(XEDPATH)/include/public/xed -I$(XEDPATH)/obj -I../shared -I../reader
+LDFLAGS = -g -L$(XEDPATH)/obj
+LIBS = -lxed
+
+all : libtrd.a
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
+
+libtrd.a: $(OFILES)
+	ar rcs libtrd.a $(OFILES) 
+clean:
+	rm -f *.o ../shared/*.o *~ libtrd.a
+

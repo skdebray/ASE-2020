@@ -1,0 +1,145 @@
+##############################################################
+#
+# This file includes all the test targets as well as all the
+# non-default build rules and test recipes.
+#
+##############################################################
+
+#LIBELF_LOC := /VMs2/stephensj2/elfutils/libelf
+
+##############################################################
+#
+# Test targets
+#
+##############################################################
+
+###### Place all generic definitions here ######
+
+# This defines tests which run tools of the same name.  This is simply for convenience to avoid
+# defining the test name twice (once in TOOL_ROOTS and again in TEST_ROOTS).
+# Tests defined here should not be defined in TOOL_ROOTS and TEST_ROOTS.
+TEST_TOOL_ROOTS := Tracer
+
+# This defines the tests to be run that were not already defined in TEST_TOOL_ROOTS.
+TEST_ROOTS :=
+
+# This defines a list of tests that should run in the "short" sanity. Tests in this list must also
+# appear either in the TEST_TOOL_ROOTS or the TEST_ROOTS list.
+# If the entire directory should be tested in sanity, assign TEST_TOOL_ROOTS and TEST_ROOTS to the
+# SANITY_SUBSET variable in the tests section below (see example in makefile.rules.tmpl).
+SANITY_SUBSET :=
+
+# This defines the tools which will be run during the the tests, and were not already defined in
+# TEST_TOOL_ROOTS.
+TOOL_ROOTS :=
+
+# This defines the static analysis tools which will be run during the the tests. They should not
+# be defined in TEST_TOOL_ROOTS. If a test with the same name exists, it should be defined in
+# TEST_ROOTS.
+# Note: Static analysis tools are in fact executables linked with the Pin Static Analysis Library.
+# This library provides a subset of the Pin APIs which allows the tool to perform static analysis
+# of an application or dll. Pin itself is not used when this tool runs.
+SA_TOOL_ROOTS :=
+
+# This defines all the applications that will be run during the tests.
+APP_ROOTS :=
+
+# This defines any additional object files that need to be compiled.
+
+# This defines any additional dlls (shared objects), other than the pintools, that need to be compiled.
+DLL_ROOTS :=
+
+#ifeq ($(TARGET), ia32)
+#	TOOL_CXXFLAGS=-DBIGARRAY_MULTIPLIER=1 -Wall -Wno-unknown-pragmas -fno-stack-protector -DTARGET_IA32 -DHOST_IA32 -DTARGET_LINUX  -I../../../../..//source/include/pin -I../../../../..//source/include/pin/gen -I../../../../..//extras/components/include -I../../../../..//extras/xed-ia32/include -I../../../../..//source/tools/InstLib -O0 -fno-strict-aliasing -g
+#else
+#	TOOL_CXXFLAGS=-DBIGARRAY_MULTIPLIER=1 -Wall -Wno-unknown-pragmas -fno-stack-protector -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX  -I../../../../..//source/include/pin -I../../../../..//source/include/pin/gen -I../../../../..//extras/components/include -I../../../../..//extras/xed-intel64/include -I../../../../..//source/tools/InstLib -O0 -fno-strict-aliasing -g
+#endif
+
+#there is a compiler bug in g++ 4.8.4 that causes the tracer to print garbage in the trace
+#if optimizations are turned on
+#ifneq ($(OS),Windows_NT) 
+#	CXX = clang++
+#	LINKER = clang++
+#endif
+
+# This defines any static libraries (archives), that need to be built.
+#TOOL_CXXFLAGS += -I$(LIBELF_LOC)
+#TOOL_LPATHS += -L$(LIBELF_LOC)
+#TOOL_LIBS += -lelf
+LIB_ROOTS := 
+PIN_TOOL_CXXFLAGS := $(TOOL_CXXFLAGS) -I../shared -Wno-deprecated-declarations
+PIN_TOOL_CFLAGS := $(TOOL_CFLAGS) -I../shared -Wno-deprecated-declarations
+
+ifeq ($(FORMAT), ASCII)
+    OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector VerboseASCIITrace
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DTRACE_ASCII
+else ifeq ($(FORMAT), VERBOSE_BIN)
+    OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector VerboseBinaryTrace StringTable
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DTRACE_VERBOSE_BINARY
+else ifeq ($(FORMAT), PRED_BIN)
+    OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector StringTable PredictBinaryTrace
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DTRACE_PRED_BINARY
+else ifeq ($(FORMAT), INFO_SEL)
+    OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector StringTable InfoSelTrace Helpers
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DTRACE_INFO_SEL 
+else ifeq ($(FORMAT), DATA_OPS)
+    OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector StringTable DataOpsTrace Helpers
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DDATA_OPS -Wno-deprecated-declarations
+endif
+
+##############################################################
+#
+# Test recipes
+#
+##############################################################
+
+# This section contains recipes for tests other than the default.
+# See makefile.default.rules for the default test rules.
+# All tests in this section should adhere to the naming convention: <testname>.test
+
+
+##############################################################
+#
+# Build rules
+#
+##############################################################
+
+# This section contains the build rules for all binaries that have special build rules.
+# See makefile.default.rules for the default build rules.
+
+$(OBJDIR)LynxReg$(OBJ_SUFFIX): ../shared/LynxReg.c ../shared/LynxReg.h
+	$(CC) $(PIN_TOOL_CFLAGS) $(COMP_OBJ)$@ $<
+
+$(OBJDIR)XedLynxReg$(OBJ_SUFFIX): ../shared/XedLynxReg.c ../shared/XedLynxReg.h
+	$(CC) $(PIN_TOOL_CFLAGS) $(COMP_OBJ)$@ $<
+	
+# Build the intermediate object file.
+#$(OBJDIR)trace$(OBJ_SUFFIX): trace.cpp ShadowMemory.h LynxReg.h
+#	$(CXX) $(OTHER_CXXFLAGS) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+# Build the intermediate object file.
+#$(OBJDIR)%$(OBJ_SUFFIX): %.c
+#	$(CC) $(TOOL_CXXFLAGS) $(OTHER_CXXFLAGS) $(COMP_OBJ)$@ $<
+ifeq ($(FORMAT), ASCII)
+$(OBJDIR)Tracer$(PINTOOL_SUFFIX): $(OBJDIR)Tracer$(OBJ_SUFFIX) $(OBJDIR)LynxReg$(OBJ_SUFFIX) $(OBJDIR)XedLynxReg$(OBJ_SUFFIX) $(OBJDIR)ShadowMemory$(OBJ_SUFFIX) $(OBJDIR)PinLynxReg$(OBJ_SUFFIX) $(OBJDIR)RegVector$(OBJ_SUFFIX) $(OBJDIR)Trace$(OBJ_SUFFIX) $(OBJDIR)VerboseASCIITrace$(OBJ_SUFFIX)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS)
+
+else ifeq ($(FORMAT), VERBOSE_BIN)
+$(OBJDIR)Tracer$(PINTOOL_SUFFIX): $(OBJDIR)Tracer$(OBJ_SUFFIX) $(OBJDIR)LynxReg$(OBJ_SUFFIX) $(OBJDIR)XedLynxReg$(OBJ_SUFFIX) $(OBJDIR)ShadowMemory$(OBJ_SUFFIX) $(OBJDIR)PinLynxReg$(OBJ_SUFFIX) $(OBJDIR)RegVector$(OBJ_SUFFIX) $(OBJDIR)Trace$(OBJ_SUFFIX) $(OBJDIR)VerboseBinaryTrace$(OBJ_SUFFIX) $(OBJDIR)StringTable$(OBJ_SUFFIX)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS)
+
+else ifeq ($(FORMAT), PRED_BIN)
+$(OBJDIR)Tracer$(PINTOOL_SUFFIX): $(OBJDIR)Tracer$(OBJ_SUFFIX) $(OBJDIR)LynxReg$(OBJ_SUFFIX) $(OBJDIR)XedLynxReg$(OBJ_SUFFIX) $(OBJDIR)ShadowMemory$(OBJ_SUFFIX) $(OBJDIR)PinLynxReg$(OBJ_SUFFIX) $(OBJDIR)RegVector$(OBJ_SUFFIX) $(OBJDIR)Trace$(OBJ_SUFFIX) $(OBJDIR)PredictBinaryTrace$(OBJ_SUFFIX) $(OBJDIR)StringTable$(OBJ_SUFFIX)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS)
+
+else ifeq ($(FORMAT), INFO_SEL)
+$(OBJDIR)Tracer$(PINTOOL_SUFFIX): $(OBJDIR)LynxReg$(OBJ_SUFFIX) $(OBJDIR)XedLynxReg$(OBJ_SUFFIX) $(OBJDIR)ShadowMemory$(OBJ_SUFFIX) $(OBJDIR)PinLynxReg$(OBJ_SUFFIX) $(OBJDIR)RegVector$(OBJ_SUFFIX) $(OBJDIR)Trace$(OBJ_SUFFIX) $(OBJDIR)InfoSelTrace$(OBJ_SUFFIX) $(OBJDIR)StringTable$(OBJ_SUFFIX) $(OBJDIR)Helpers$(OBJ_SUFFIX) $(OBJDIR)InfoSelMain$(OBJ_SUFFIX) 
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS)
+else ifeq ($(FORMAT), DATA_OPS)
+$(OBJDIR)Tracer$(PINTOOL_SUFFIX): $(OBJDIR)LynxReg$(OBJ_SUFFIX) $(OBJDIR)XedLynxReg$(OBJ_SUFFIX) $(OBJDIR)ShadowMemory$(OBJ_SUFFIX) $(OBJDIR)PinLynxReg$(OBJ_SUFFIX) $(OBJDIR)RegVector$(OBJ_SUFFIX) $(OBJDIR)Trace$(OBJ_SUFFIX) $(OBJDIR)DataOpsTrace$(OBJ_SUFFIX) $(OBJDIR)StringTable$(OBJ_SUFFIX) $(OBJDIR)Helpers$(OBJ_SUFFIX) $(OBJDIR)DataOpsMain$(OBJ_SUFFIX) 
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS)
+
+else
+	$(error undefined or unknown trace format)
+endif
+
