@@ -1,9 +1,9 @@
-# uacs-lynx: Tools for dynamic analysis of dynamic code
+# Representing and Reasoning about Dynamic Code
 
 ## Overview
 The code in this repository is described in the paper
 
-> Jesse Bartels, Jon Stephens, and Saumya Debray. "Reprenting and Reasoning about Dynamic Code".  *Proceedings of th 35th IEEE/ACM International Conference on Automated Software Engineering* (ASE 2020), Sept. 2020.
+> Jesse Bartels, Jon Stephens, and Saumya Debray. "Reprenting and Reasoning about Dynamic Code".  *Proceedings of the 35th IEEE/ACM International Conference on Automated Software Engineering* (ASE 2020), Sept. 2020.
 
 The data files for that paper are available in the directory `https://www2.cs.arizona.edu/projects/lynx-project/Samples/ASE-2020/`.
 
