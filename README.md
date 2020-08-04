@@ -1,6 +1,12 @@
 # uacs-lynx: Tools for dynamic analysis of dynamic code
 
 ## Overview
+The code in this repository is described in the paper
+
+    Jesse Bartels, Jon Stephens, and Saumya Debray. "Reprenting and Reasoning about Dynamic Code".  *Proceedings of th 35th IEEE/ACM International Conference on Automated Software Engineering* (ASE 2020), Sept. 2020.
+
+The data files for that paper are available in the directory `https://www2.cs.arizona.edu/projects/lynx-project/Samples/ASE-2020/`.
+
 The tools in this repository support analysis of application-level instruction execution traces.  In particular, they focus on analysis of *dynamic code*, i.e., code that can be created or modified at  runtime.
 
 The core components of the toolset are a *trace writer* and a *trace reader*.  Other analyses are built using these components.  Documentation for each of these tools is available in the directory containing the code for the tool.
@@ -19,14 +25,15 @@ The trace reader reads the instructions recorded in a trace file and provides th
 
 The current implementation of the trace reader is availabile in the directory `reader`.  It uses Intel's [XED](https://intelxed.github.io/) for disassembly.  A tutorial on how to use it is available in the file `reader/HOW-TO-USE.md`.
 
-## Other analysis tools
+### DCFG construction
+This code, in the directory `cfg`, constructs *dynamic control flow graphs*, which extend the traditional notion of contriol flow graphs to dynamic code, i.e., code that can be created or modified at runtime.
 
-Other analysis tools built using the trace writer and reader described above include:
+### Slicer
+This code, in the directory `slice`, constructs backward dynamic slices of dynamic code.
 
-- `alloc_chk` : records and checks heap allocations.
-- `cfg` : constructs *dynamic control flow graphs*, which extend the traditional notion of contriol flow graphs to dynamic code, i.e., code that can be created or modified at runtime.
-- `funcall-trace` : analyzes function calls and returns in an execution trace.
-- `slice` : constructs backward dynamic slices of dynamic code.
-- `taint` : a taint propagation library.
-- `trace2ascii` : reads an instruction-level trace and writes out the trace as ASCII text.
+### Taint
+This code, in the directory `taint`, is a taint propagation library.
+
+### Trace2ascii
+This tool, in the directory `trace2ascii`, reads an instruction-level trace and writes out the trace as ASCII text.
 
