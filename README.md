@@ -42,5 +42,5 @@ Type the command
 
      make
 
-### Running the experiments in the ASE-2020 paper
+## Running the experiments in the ASE-2020 paper
 Download one or more of the data files from `https://www2.cs.arizona.edu/projects/lynx-project/Samples/ASE-2020/` and see the README files for the different benchmark sets.
