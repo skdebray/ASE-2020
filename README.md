@@ -40,6 +40,9 @@ The code consists of the following components in the directories specified:
 
   The current implementation of the trace writer is availabile in the directory `tracer`.  It uses Intel's [Pin](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html) for dynamic instrumentation and recording.
 
+- `xed`
+  The code in this directory is Intel's [XED](https://intelxed.github.io/).  It is reproduced here unchanged from that on the XED repository and is distributed under the terms of the license for that software.
+
 ## Building the code
 Type the command
 
