@@ -145,7 +145,9 @@ void build_cfg(SlicedriverState *driver_state) {
 	   && curEvent.exception.tid != driver_state->targetTid)) {
 	continue;
       }
-      printf("EXCEPTION %d\n", curEvent.exception.code);
+      printf("trace file contains an exception event (position = %ld, exception code = %d)\n",
+	     event_posn,
+	     curEvent.exception.code);
     }
 
     cfgInstruction *cfgVal = addInstructionToCFG(&curEvent, cfgs);
@@ -263,17 +265,21 @@ int main(int argc, char **argv){
   std::pair<Action *, uint64_t> action_info;
   vector<std::pair<cfgInstruction *, infoTuple *>> insCollection;
 
+  printf("Initializing slicer\n");
   init_driver_state(&driver_state, &insCollection);
     
   parseCommandLine(argc, argv, &driver_state);
     
   init_slice_driver(argv, &driver_state);
 
+  printf("Constructing DCFG\n");
   build_cfg(&driver_state);
-    
+
+  printf("Computing slice\n");
   SliceState *sliceState = compute_slice(&driver_state);
 
   closeReader(driver_state.rState);
-    
+  printf("Done!\n");
+  
   return 0;
 }
