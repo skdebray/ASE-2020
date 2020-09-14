@@ -67,8 +67,8 @@ DLL_ROOTS :=
 #TOOL_LPATHS += -L$(LIBELF_LOC)
 #TOOL_LIBS += -lelf
 LIB_ROOTS := 
-PIN_TOOL_CXXFLAGS := $(TOOL_CXXFLAGS) -I../shared -Wno-deprecated-declarations
-PIN_TOOL_CFLAGS := $(TOOL_CFLAGS) -I../shared -Wno-deprecated-declarations
+PIN_TOOL_CXXFLAGS := $(TOOL_CXXFLAGS) -I../shared 
+PIN_TOOL_CFLAGS := $(TOOL_CFLAGS) -I../shared
 
 ifeq ($(FORMAT), ASCII)
     OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector VerboseASCIITrace
@@ -84,7 +84,7 @@ else ifeq ($(FORMAT), INFO_SEL)
 	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DTRACE_INFO_SEL 
 else ifeq ($(FORMAT), DATA_OPS)
     OBJECT_ROOTS := Trace ShadowMemory PinLynxReg RegVector StringTable DataOpsTrace Helpers
-	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DDATA_OPS -Wno-deprecated-declarations
+	TOOL_CXXFLAGS += -D_FILE_OFFSET_BITS=64 -std=c++0x -I../shared -DDATA_OPS 
 endif
 
 ##############################################################

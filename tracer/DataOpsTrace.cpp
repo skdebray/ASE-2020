@@ -29,8 +29,9 @@ UINT32 traceHeaderOff;
 UINT32 traceStart;
 UINT32 predTID = 0;
 UINT32 numSkipped = 0;
-const UINT32 LARGEST_REG_SIZE = 64;
+const UINT32 LARGEST_REG_SIZE = 1024;
 const UINT32 BUF_SIZE = 16384;
+const UINT32 MAX_MEM_OP_SIZE = 1024;
 const UINT32 UINT8_SIZE = sizeof(UINT8);
 const UINT32 UINT16_SIZE = sizeof(UINT16);
 const UINT32 UINT32_SIZE = sizeof(UINT32);
@@ -60,7 +61,7 @@ struct ThreadData {
             eventId(0), pos(NULL), memWriteAddr(0), memWriteSize(0), destRegs(NULL), destFlags(0), print(false), initialized(false), predSrcId(0), predFuncId(0), predAddr(0), dataPos(NULL), printBinary(NULL), binary(NULL) {
     }
     UINT64 eventId;
-    UINT8 buffer[38];
+    UINT8 buffer[40];
     UINT8 *pos;
     UINT8 *predRecord;
     ADDRINT memWriteAddr;
@@ -72,7 +73,7 @@ struct ThreadData {
     uint32_t predSrcId;
     uint32_t predFuncId;
     ADDRINT predAddr;
-    UINT8 dataBuffer[512];
+    UINT8 dataBuffer[4 * MAX_MEM_OP_SIZE];
     UINT8 *dataPos; 
     bool *printBinary;
     uint8_t *binary;
@@ -197,7 +198,7 @@ UINT8 *printDataLabel(UINT8 *pos, UINT64 eventId) {
  * Assumptions: There is enough space in the buffer
  * Output: New current position in buffer
  **/
-UINT8 *printMemData(UINT8 *pos, UINT8 size, ADDRINT addr, UINT8 *val, UINT8 **sizePos) {
+UINT8 *printMemData(UINT8 *pos, UINT16 size, ADDRINT addr, UINT8 *val, UINT8 **sizePos) {
     *pos = (UINT8) OP_MEM;
     pos += UINT8_SIZE;
 
@@ -205,8 +206,8 @@ UINT8 *printMemData(UINT8 *pos, UINT8 size, ADDRINT addr, UINT8 *val, UINT8 **si
         *sizePos = pos;
     }
 
-    *pos = size;
-    pos += UINT8_SIZE;
+    *((UINT16 *) pos) = size;
+    pos += UINT16_SIZE;
 
     *((ADDRINT *) pos) = addr;
     pos += ADDRINT_SIZE;
@@ -294,8 +295,8 @@ void recordMemRead(THREADID tid, ADDRINT readAddr, UINT32 readSize) {
     data.dataPos += UINT8_SIZE;
     
     //assert(readSize <= LARGEST_REG_SIZE);
-    *((UINT8 *)(data.dataPos)) = (UINT8) readSize;
-    data.dataPos += UINT8_SIZE;
+    *((UINT16 *)(data.dataPos)) = (UINT16) readSize;
+    data.dataPos += UINT16_SIZE;
 
     *((ADDRINT *) data.dataPos) = readAddr;
     data.dataPos += ADDRINT_SIZE;
@@ -317,20 +318,28 @@ void checkMemRead(THREADID tid, ADDRINT readAddr, UINT32 readSize) {
     //ThreadData &data = tls[tid];
     PIN_MutexLock(&dataLock);
     ADDRINT curAddr = readAddr;
-    UINT8 seenBits[9];
-    UINT8 value[64];
+    UINT8 seenBits[MAX_MEM_OP_SIZE / 8 + 1];
+    UINT8 value[MAX_MEM_OP_SIZE];
+
+    if(readSize > MAX_MEM_OP_SIZE) {
+        fprintf(stderr, "Max memory read size exceeded in checkMemRead\n");
+        fprintf(errorFile, "Max memory read size exceeded in checkMemRead\n");
+        exit(1);
+    }
+
+
     PIN_SafeCopy(value, (UINT8 *) (readAddr), readSize);
 
     mem.loadSeen(readAddr, readSize, seenBits);
     //UINT8 buf[4096];
-    UINT8 *buf = getFileBuf(512, dataBuf, dataBufPos, dataFile);
+    UINT8 *buf = getFileBuf(MAX_MEM_OP_SIZE + UINT8_SIZE + UINT16_SIZE + ADDRINT_SIZE, dataBuf, dataBufPos, dataFile);
     UINT8 *sizePos = NULL;
     UINT8 *pos = buf;
 
     for(UINT32 i = 0; i < readSize; i++) {
         if((seenBits[i >> 3]) & (1 << (i % 8))) {
             if(sizePos != NULL) {
-                *sizePos = (pos - sizePos) - ADDRINT_SIZE - UINT8_SIZE;
+                *((uint16_t *) sizePos) = (pos - sizePos) - ADDRINT_SIZE - UINT16_SIZE;
                 sizePos = NULL;
             }
         }
@@ -347,7 +356,7 @@ void checkMemRead(THREADID tid, ADDRINT readAddr, UINT32 readSize) {
     }
 
     if(sizePos != NULL) {
-        *sizePos = (pos - sizePos) - ADDRINT_SIZE - UINT8_SIZE;
+        *((uint16_t *) sizePos) = (pos - sizePos) - ADDRINT_SIZE - UINT16_SIZE;
     }
 
     //there was something we didn't see
@@ -630,8 +639,8 @@ bool printIns(THREADID tid, const CONTEXT *ctx) {
         *((UINT8 *) data.dataPos) = OP_DST_MEM;
         data.dataPos += UINT8_SIZE;
         
-        *((UINT8 *) data.dataPos) = (UINT8)(data.memWriteSize);
-        data.dataPos += UINT8_SIZE;
+        *((UINT16 *) data.dataPos) = (UINT16)(data.memWriteSize);
+        data.dataPos += UINT16_SIZE;
 
         *((ADDRINT *) data.dataPos) = data.memWriteAddr;
         data.dataPos += ADDRINT_SIZE;

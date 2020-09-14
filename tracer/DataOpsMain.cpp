@@ -104,7 +104,7 @@ void imgInstrumentation(IMG img, void *v) {
         printf("\n");
     }*/
     for(SYM sym = IMG_RegsymHead(img); SYM_Valid(sym); sym = SYM_Next(sym)) {
-        std::string undFuncName = PIN_UndecorateSymbolName(SYM_Name(sym), UNDECORATION_NAME_ONLY);
+        string undFuncName = PIN_UndecorateSymbolName(SYM_Name(sym), UNDECORATION_NAME_ONLY);
         ADDRINT symAddr = SYM_Address(sym);
         if(apiMap.find(symAddr) == apiMap.end()) {
             apiMap[symAddr] = undFuncName.c_str();
@@ -112,7 +112,7 @@ void imgInstrumentation(IMG img, void *v) {
     }
 
     if(IMG_IsMainExecutable(img)) {
-        entryPoint = IMG_Entry(img) + IMG_LoadOffset(img);
+        entryPoint = IMG_EntryAddress(img);
     }
 }
 
@@ -200,14 +200,14 @@ void insInstrumentation(INS ins, void *v) {
     INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) initIns, IARG_FAST_ANALYSIS_CALL, IARG_THREAD_ID, IARG_END);
 
     if(writeSrcId) {
-        std::string srcStr;
+        string srcStr;
         getSrcName(img, srcStr);
         UINT32 srcId = strTable.insert(srcStr.c_str());
         INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) recordSrcId, IARG_FAST_ANALYSIS_CALL, IARG_THREAD_ID, IARG_UINT32, srcId, IARG_END);
     }
 
     if(writeFnId) {
-        std::string fnStr;
+        string fnStr;
         getFnName(rtn, img, fnStr);
         UINT32 fnId = strTable.insert(fnStr.c_str());
         INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) recordFnId, IARG_FAST_ANALYSIS_CALL, IARG_THREAD_ID, IARG_UINT32, fnId, IARG_END);
@@ -285,7 +285,7 @@ void insInstrumentation(INS ins, void *v) {
             printingIns = true;
         }
         //if(INS_IsDirectBranchOrCall(ins) || INS_IsRet(ins)) {
-        if(INS_IsBranchOrCall(ins) && !INS_IsXend(ins)) {
+        if((INS_IsBranch(ins) || INS_IsCall(ins)) && !INS_IsXend(ins) && INS_IsValidForIpointTakenBranch(ins)) {
             INS_InsertCall(ins, IPOINT_TAKEN_BRANCH, (AFUNPTR) printIns, IARG_THREAD_ID, IARG_CONST_CONTEXT, IARG_END);
             printingIns = true;
         }
@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
     LEVEL_PINCLIENT::PIN_InitSymbols();
 
     if(PIN_Init(argc, argv)) {
-      cerr << KNOB_BASE::StringKnobSummary() << std::endl;
+        cerr << KNOB_BASE::StringKnobSummary() << endl;
         return -1;
     }
 

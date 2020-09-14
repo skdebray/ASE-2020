@@ -27,9 +27,9 @@ using std::map;
 using std::cerr;
 
 ADDRINT entryPoint;
-map<ADDRINT, std::string> apiMap;
-std::string unknownStr = "Unknown";
-std::string emptyStr = "";
+map<ADDRINT, string> apiMap;
+string unknownStr = "Unknown";
+string emptyStr = "";
 
 ShadowMemory mem;
 
@@ -432,7 +432,7 @@ void getSrcDestInfo(INS &ins, RegVector *srcRegs, RegVector *destRegs, UINT32 &m
  * Side Effects: Fills in srcStr (that way srcStr can be dynamically allocated if required)
  * Outputs: none
  **/
-void getSrcName(IMG img, std::string &srcStr) {
+void getSrcName(IMG img, string &srcStr) {
     if(IMG_Valid(img)) { 
         srcStr = extractFilename(IMG_Name(img));
     }
@@ -448,7 +448,7 @@ void getSrcName(IMG img, std::string &srcStr) {
  * Side Effects: Fills in fnStr (that way it can be dynamically allocated if necessary)
  * Outputs: None
  **/
-void getFnName(RTN rtn, IMG img, std::string &fnStr) {
+void getFnName(RTN rtn, IMG img, string &fnStr) {
     if(IMG_Valid(img)) { 
         ADDRINT rtnAddr = RTN_Address(rtn);
         if(apiMap.find(rtnAddr) != apiMap.end()) {
@@ -513,7 +513,7 @@ void imgInstrumentation(IMG img, void *v) {
         }
 
         uint64_t elfEntry = elfHeader.e_entry();
-        entryPoint = IMG_Entry(img);
+        entryPoint = IMG_EntryAddress(img);
 
         uint64_t reloc = entryPoint - elfEntry;
 
