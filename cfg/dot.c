@@ -65,7 +65,7 @@ static void print_dot_ftr(FILE *fp) {
 }
 
 static char * print_ins_no_r(cfgInstruction *iins, char *ins_str, cfgState *state) {
-  char this_ins_str[128], *cat_ins_str;
+  char this_ins_str[1024], *cat_ins_str;
   int cat_ins_len;
 
   assert(iins && ins_str);
@@ -74,7 +74,7 @@ static char * print_ins_no_r(cfgInstruction *iins, char *ins_str, cfgState *stat
   xed_decoded_inst_t xedIns;
   decodeIns(state->disState, &xedIns, iins->event.ins.binary, 15);
   getInsMnemonic(&xedIns, mnemonic, 256);
-  snprintf(this_ins_str, 128, "%llx: %s %d %d", (unsigned long long)iins->event.ins.addr, mnemonic, iins->block->fun->id, iins->event.ins.tid);
+  snprintf(this_ins_str, 1024, "%llx: %s %d %d", (unsigned long long)iins->event.ins.addr, mnemonic, iins->block->fun->id, iins->event.ins.tid);
   cat_ins_len = strlen(ins_str) + strlen(this_ins_str) + 3;  /* 3 = strlen("\\n") + NUL */
   cat_ins_str = alloc(cat_ins_len);
   strcpy(cat_ins_str, ins_str);
@@ -89,7 +89,7 @@ static char * print_ins_no_r(cfgInstruction *iins, char *ins_str, cfgState *stat
  * representation of the instruction iins at the end of the string ins_str.
  */
 static char * print_ins(cfgInstruction *iins, char *ins_str, ReaderState *rState) {
-  char this_ins_str[128], *cat_ins_str;
+  char this_ins_str[1024], *cat_ins_str;
   int cat_ins_len;
 
   assert(iins && ins_str);
@@ -97,9 +97,9 @@ static char * print_ins(cfgInstruction *iins, char *ins_str, ReaderState *rState
   /*InsInfo iinfo;
   initInsInfo(&iinfo);
   fetchInsInfo(rState, &(iins->event.ins), &iinfo);
-  snprintf(this_ins_str, 128, "%llx: %s %d %d", (unsigned long long)iins->event.ins.addr, iinfo.mnemonic, iins->block->fun->id, iins->event.ins.tid);*/
+  snprintf(this_ins_str, 1024, "%llx: %s %d %d", (unsigned long long)iins->event.ins.addr, iinfo.mnemonic, iins->block->fun->id, iins->event.ins.tid);*/
 
-  snprintf(this_ins_str, 128, "%llx", (unsigned long long)iins->event.ins.addr);
+  snprintf(this_ins_str, 1024, "%llx", (unsigned long long)iins->event.ins.addr);
   cat_ins_len = strlen(ins_str) + strlen(this_ins_str) + 3;  /* 3 = strlen("\\n") + NUL */
   cat_ins_str = alloc(cat_ins_len);
   strcpy(cat_ins_str, ins_str);

@@ -1,52 +1,39 @@
-# Representing and Reasoning about Dynamic Code
+# uacs-lynx: Tools for dynamic analysis of dynamic code
 
 ## Overview
-The code in this repository is described in the paper
-
-> Jesse Bartels, Jon Stephens, and Saumya Debray. "Representing and Reasoning about Dynamic Code".  *Proceedings of the 35th IEEE/ACM International Conference on Automated Software Engineering* (ASE 2020), Sept. 2020.
-
-The data files for that paper are available in the directory `https://www2.cs.arizona.edu/projects/lynx-project/Samples/ASE-2020/`.
-
 The tools in this repository support analysis of application-level instruction execution traces.  In particular, they focus on analysis of *dynamic code*, i.e., code that can be created or modified at  runtime.
 
 The core components of the toolset are a *trace writer* and a *trace reader*.  Other analyses are built using these components.  Documentation for each of these tools is available in the directory containing the code for the tool.
 
-## Components
+## Building the tools
+1) Download Intel's [XED](https://intelxed.github.io/) disassembler and set the environment variable `XED_ROOT` to point to the directory containing xed.
+2) Download Intel's [Pin](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html) dynamic instrumentation system and set the environment variable `PIN_ROOT` to point to the directory containing Pin.
+3) Execute the command
 
-The code consists of the following components in the directories specified:
+   `make`
 
-- `cfg`
-  The code the directory `cfg` constructs *dynamic control flow graphs*, which extend the traditional notion of contriol flow graphs to dynamic code, i.e., code that can be created or modified at runtime.
+## Core components
 
-- `reader`
-  The directory `reader` contains the *trace reader*,  which reads the instructions recorded in a trace file and provides them to various analysis tools.  Most analysis tools rely primariy on the reader; the tracer's function is simply to provide instruction traces for analysis.
+### Trace writer
 
-  The current implementation of the trace reader is availabile in the directory `reader`.  It uses Intel's [XED](https://intelxed.github.io/) for disassembly.  A tutorial on how to use it is available in the file `reader/HOW-TO-USE.md`.
+The trace writer monitors the execution of an application and writes an instruction-level execution trace of the client application into a file.  Writing instruction-level execution traces into files can reult in large trace files and high I/O costs.  However, it offers a number of advantages as well, including the flexibility of off-line execution playback and analysis that can be decoupled from the original execution and thus need not be performed on the same execution platform.
 
-- `shared`
-  This directory contains files shared between multiple different tools.
+The current implementation of the trace writer is availabile in the directory `tracer`.  It uses Intel's [Pin](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html) for dynamic instrumentation and recording.
 
-- `slice`
-  The code in the directory `slice` constructs backward dynamic slices of dynamic code.
+### Trace reader
 
-- `taint`
-  The code in the directory `taint` is a taint propagation library.  The current implementation maintains and propagates taint at the byte level.
+The trace reader reads the instructions recorded in a trace file and provides them to various analysis tools.  Most analysis tools rely primariy on the reader; the tracer's function is simply to provide instruction traces for analysis.
 
-- `trace2ascii`
-  The `trace2ascii` tool reads an instruction-level trace and writes out the trace as ASCII text.
+The current implementation of the trace reader is availabile in the directory `reader`.  It uses Intel's [XED](https://intelxed.github.io/) for disassembly.  A tutorial on how to use it is available in the file `reader/HOW-TO-USE.md`.
 
-- `tracer`
-  The directory `tracer` contains code for the *trace writer*, which uses Intel's Pin toolkit to monitor the execution of an application and write out an instruction-level execution trace of the client application into a file.  Writing instruction-level execution traces into files can reult in large trace files and high I/O costs.  However, it offers a number of advantages as well, including the flexibility of off-line execution playback and analysis that can be decoupled from the original execution and thus need not be performed on the same execution platform.
+## Other analysis tools
 
-  The current implementation of the trace writer is availabile in the directory `tracer`.  It uses Intel's [Pin](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html) for dynamic instrumentation and recording.
+Other analysis tools built using the trace writer and reader described above include:
 
-- `xed`
-  The code in this directory is Intel's [XED](https://intelxed.github.io/) disassembler.  It is reproduced here unchanged from that on the XED repository and is distributed under the terms of the license for that software.
+- `alloc_chk` : records and checks heap allocations.
+- `cfg` : constructs *dynamic control flow graphs*, which extend the traditional notion of contriol flow graphs to dynamic code, i.e., code that can be created or modified at runtime.
+- `funcall-trace` : analyzes function calls and returns in an execution trace.
+- `slice` : constructs backward dynamic slices of dynamic code.
+- `taint` : a taint propagation library.
+- `trace2ascii` : reads an instruction-level trace and writes out the trace as ASCII text.
 
-## Building the code
-Type the command
-
-     make
-
-## Running the experiments in the ASE-2020 paper
-Download one or more of the data files from `https://www2.cs.arizona.edu/projects/lynx-project/Samples/ASE-2020/` and see the README files for the different benchmark sets.

@@ -1,24 +1,28 @@
-# This make file can be used to create both statically-linked and
-# dynamically-linked versions of the library; by default, it creates
-# a statically-linked one.  Alternatively, the appropriate one can
-# be created by specifying the particular make file to use:
-#
-# for a statically-linked library: use Makefile-static
-# for a dynamically-linked library: use Makefile-dynamic
+DEST = libtaint.a
 
-#libtaint.a : a statically-linked version of the taint library
-libtaint.a :
-	make clean; /bin/rm -f libtaint.a; make -f Makefile-static
+# This make file assumes that the environment variable XED_ROOT points to the
+# root of the directory tree containing the xed disassembler
 
-# libtaint.so : a dynamically-linked version of the taint library
-libtaint.so :
-	make clean; /bin/rm -f libtaint.so; make -f Makefile-dynamic
+CXX = g++
+CC = gcc
+CFILES =  ../shared/LynxReg.c ByteMemoryTaint.c ByteRegTaint.c Taint.c BytePropagation.c ConstPropagation.c
+CXXFILES = LabelStore.cpp
+OFILES = $(CFILES:c=o) $(CXXFILES:cpp=o)
+CFLAGS = -Wall -g -c
+CXXFLAGS = -Wall -g -fpic -c -std=c++11
+INCLUDES = -I$(XED_ROOT)/obj -I$(XED_ROOT)/include/public/xed -I../shared -I../reader
+LDFLAGS = -shared -g -L$(XED_ROOT)/obj -L../reader
+LIBS = -lxed -ltrd
 
-.PHONY: all clean realclean
-all : libtaint.so libtaint.a
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $<
 
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
+
+$(DEST) : $(OFILES)
+	ar rcs $(DEST) $(OFILES)
+
+.PHONY: clean
 clean:
-	/bin/rm -f *.BAK *~ *.o
-
-realclean:
-	/bin/rm -f *.BAK *~ *.o libtaint.so libtaint.a
+	rm -f ../shared/*.o *.o $(DEST)

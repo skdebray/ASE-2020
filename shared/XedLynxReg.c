@@ -1,24 +1,9 @@
 #include "XedLynxReg.h"
 #include "TraceFileHeader.h"
 #include <stdio.h>
-#include <string.h>
-
-/*
- * ignore_unknown_xed_regs[] lists XED registers that this tool ignores silently.
- */
-static char *ignore_unknown_xed_regs[] = {
-  "TSC",
-  "X87PUSH",
-  "X87POP"
-};
-
-static int n_ignored_regs = sizeof(ignore_unknown_xed_regs)/sizeof(char *);
 
 LynxReg xedReg2LynxReg_all (xed_reg_enum_t reg, ArchType arch)
 {
-    char *reg_name;
-    int i, found;
-    
     switch (reg) {
     case XED_REG_RFLAGS:
     case XED_REG_EFLAGS:
@@ -464,22 +449,8 @@ LynxReg xedReg2LynxReg_all (xed_reg_enum_t reg, ArchType arch)
 	case XED_REG_INVALID:
 	    return LYNX_INVALID;
 	default:
-	  /*
-	   * warn if this is not a register known to be ignored by the tool
-	   */
-	  reg_name = xed_reg_enum_t2str(reg);
-	  found = 0;
-	  for (i = 0; i < n_ignored_regs; i++) {
-	    if (strcmp(reg_name, ignore_unknown_xed_regs[i]) == 0) {
-	      found = 1;
-	      break;
-	    }
-	  }
-	  if (!found) {
-	    fprintf(stderr, "Warning: Unknown xed reg %s\n", reg_name);
-	  }
-
-	  return LYNX_INVALID;
+        fprintf(stderr, "Warning: Unknown xed reg %s\n", xed_reg_enum_t2str(reg));
+	    return LYNX_INVALID;
     }
 }
 

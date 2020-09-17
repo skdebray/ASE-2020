@@ -2,7 +2,7 @@
 
 CXX = g++
 CC = gcc
-XEDPATH = ../xed
+XEDPATH = ../../xed
 CFILES =  ../shared/LynxReg.c ByteMemoryTaint.c ByteRegTaint.c Taint.c BytePropagation.c ConstPropagation.c
 CXXFILES = LabelStore.cpp
 OFILES = $(CFILES:c=o) $(CXXFILES:cpp=o)

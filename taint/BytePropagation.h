@@ -3,6 +3,8 @@
 
 #include "Taint.h"
 
+uint8_t reg_is_RIP_or_RSP(LynxReg reg);
+
 uint64_t backwardBytePropagation(TaintState *state, uint32_t tid, InsInfo *info);
 uint64_t backwardBytePropagationWithIns(TaintState *state, uint32_t tid, InsInfo *info, ReaderIns instruction);
 uint64_t defaultBytePropagation(TaintState *state, ReaderEvent *event, InsInfo *info, uint8_t keepRegInAddrCalc);

@@ -1,7 +1,7 @@
 TOOLDIR = ..
 
 # set XEDPATH to the directory containing XED
-XEDPATH = ../xed
+XEDPATH = ../../xed
 
 CC = gcc
 

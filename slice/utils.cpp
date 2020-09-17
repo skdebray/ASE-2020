@@ -163,18 +163,17 @@ void print_slice_instrs(SliceState *slice, SlicedriverState *driver_state) {
        ++iter) {
     cfg_ins = *iter;
     rd_event = (*iter)->event;
-    if (rd_event.type == INS_EVENT) {
-      instr = rd_event.ins;
+    assert(rd_event.type != EXCEPTION_EVENT);
+    instr = rd_event.ins;
 
-      xed_decoded_inst_zero(&xedIns);
-      xed_decoded_inst_set_mode(&xedIns, mmode, stack_addr_width);
-      xed_err = xed_decode(&xedIns, instr.binary, instr.binSize);
-      assert(xed_err == XED_ERROR_NONE);
+    xed_decoded_inst_zero(&xedIns);
+    xed_decoded_inst_set_mode(&xedIns, mmode, stack_addr_width);
+    xed_err = xed_decode(&xedIns, instr.binary, instr.binSize);
+    assert(xed_err == XED_ERROR_NONE);
 
-      getInsMnemonic(&xedIns, mnemonic, 256);
-      fprintf(driver_state->outf, "[ph: %d]; %s;  %lx;    %s;\n",
-	      cfg_ins->phaseID, cfg_ins->block->fun->name, instr.addr, mnemonic);
-    }
+    getInsMnemonic(&xedIns, mnemonic, 256);
+    fprintf(driver_state->outf, "[ph: %d]; %s;  %lx;    %s;\n",
+	    cfg_ins->phaseID, cfg_ins->block->fun->name, instr.addr, mnemonic);
     
   }
 

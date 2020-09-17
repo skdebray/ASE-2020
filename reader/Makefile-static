@@ -1,7 +1,9 @@
 .PHONY: all clean  
 
+# This make file assumes that the environment variable XED_ROOT points to the
+# root of the directory tree containing the xed disassembler
+
 CC = gcc
-XEDPATH = ../xed
 CFILES =  ../shared/XedLynxReg.c \
 	../shared/LynxReg.c \
 	../shared/XedDisassembler.c \
@@ -14,8 +16,8 @@ CFILES =  ../shared/XedLynxReg.c \
 	Reader.c
 OFILES = $(CFILES:c=o)
 CFLAGS = -Wall -O2 -g -c
-INCLUDES = -I$(XEDPATH)/include/public/xed -I$(XEDPATH)/obj -I../shared -I../reader
-LDFLAGS = -g -L$(XEDPATH)/obj
+INCLUDES = -I$(XED_ROOT)/include/public/xed -I$(XED_ROOT)/obj -I../shared -I../reader
+LDFLAGS = -g -L$(XED_ROOT)/obj
 LIBS = -lxed
 
 all : libtrd.a

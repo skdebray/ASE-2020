@@ -1,10 +1,10 @@
-
-XED_DIR=../xed
+# This make file assumes that the environment variable XED_ROOT points to the
+# root of the directory tree containing the xed disassembler
 
 CC=gcc
 CFLAGS=-g
-INCLUDES=-I$(XED_DIR)/include/public/xed -I$(XED_DIR)/obj -I../reader -I../shared
-LIBPATHS=-L$(XED_DIR)/obj -L../reader
+INCLUDES=-I$(XED_ROOT)/include/public/xed -I$(XED_ROOT)/obj -I../reader -I../shared
+LIBPATHS=-L$(XED_ROOT)/obj -L../reader
 LIBS=-ltrd -lxed
 
 trace2ascii : trace2ascii.c

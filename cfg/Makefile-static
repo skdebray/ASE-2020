@@ -1,19 +1,19 @@
 DEST = libcfg.a
 
-TOOLDIR = ..
+# This make file assumes that the environment variable XED_ROOT points to the
+# root of the directory tree containing the xed disassembler
 
-# set XEDPATH to the directory containing XED
-XEDPATH = ../xed
+TOOLDIR = ..
 
 CC = gcc
 
 IFLAGS = -I$(TOOLDIR)/reader \
        -I$(TOOLDIR)/shared \
-       -I$(XEDPATH)/include/public/xed \
-       -I$(XEDPATH)/obj \
+       -I$(XED_ROOT)/include/public/xed \
+       -I$(XED_ROOT)/obj \
        -I$(TOOLDIR)/cfg \
        -I$(TOOLDIR)/taint
-LFLAGS = -L$(TOOLDIR)/reader -L$(XEDPATH)/obj -I$(TOOLDIR)/cfg -L$(TOOLDIR)/taint
+LFLAGS = -L$(TOOLDIR)/reader -L$(XED_ROOT)/obj -I$(TOOLDIR)/cfg -L$(TOOLDIR)/taint
 
 CFLAGS = -Wall -O2 -g -DDEBUG 
 HASH = 
