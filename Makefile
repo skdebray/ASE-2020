@@ -16,13 +16,13 @@ else
 	make -C taint 
 	make -C cfg 
 	make -C slice
-	chdir tracer; build.sh
+	chdir tracer; ./build.sh
 endif
 
 clean : $(TARGETS)
-	cd reader; make clean
+	cd reader; make realclean
 	cd trace2ascii ; make clean
-	cd cfg ; make clean
+	cd cfg ; make realclean
 	cd taint ; make clean
 	cd slice ; make clean
 	cd tracer; make clean

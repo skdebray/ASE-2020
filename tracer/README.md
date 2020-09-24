@@ -9,50 +9,48 @@ The analysis functions (DataOpsTrace.cpp) are intended to run every time an inst
 
 ## Prerequisites ##
 
-Windows (Currently Broken, needs to be updated with a library to read PE files)
-
-* Visual Studios 2008, 2010 or 2012
-* Cygwin with the make package from devel
-* Intel Pin 3.6+
-
 Linux
 
 * gcc 3.4 or later
 * clang++
-* Intel Pin 3.6+
+* Intel Pin 3.8+
+
+Windows (Currently Broken, needs to be updated with a library to read PE files)
+
+* ~~Visual Studios 2008, 2010 or 2012~~
+* ~~Cygwin with the make package from devel~~
+* ~~Intel Pin 3.8+~~
 
 ## Building ##
 
-### Windows ###
-
-1. Download and install Visual Studios 2008, 2010 or 2012
-2. Download and install Cygwin. Be sure to install Cygwin with make from devel and git.
-3. Add the Cygwin bin directory to Window’s path environment variable (make sure to log out and log back in or restart after adding the variable)
-4. Download Pin 3.6+ from [Pin's download page](https://software.intel.com/en-us/articles/pintool-downloads). Note that on a Windows machine, you need visual studios to build the pintool, so make sure to download the version of PIN that corresponds with your version of Visual Studios.
-5. Extract Pin from the archive. The location of Pin's base folder will henceforth be referred to as $PIN_BASE
-6. Navigate to $PIN_BASE/source/tools
-7. Checkout the toolset into this directory
-8. If you want to trace a x86-64 program, open the Visual Studio x64 Win64 Command Prompt, while if you want to trace a x86 program, open the Visual Studio Command Prompt (note, not 64).
-9. In the command prompt, navigate to $PIN_BASE/source/tools/ScienceUpToPar/Tools/tracer
-10. Run build.cmd to build both the x86-64 and x86 versions of the tracer.
-
 ### Linux ###
-1. Download Pin 3.6+ from [Pin's download page](https://software.intel.com/en-us/articles/pintool-downloads)
-2. Extract Pin from the archive. The location of Pin's base folder will henceforth be referred to as $PIN_BASE
-3. Navigate to $PIN_BASE/source/tools
-4. Checkout the toolset into this directory
-5. Open a terminal and navigate to $PIN_BASE/source/tools/ScienceUpToPar/Tools/tracer
+1. Download Pin 3.8+ from [Pin's download page](https://software.intel.com/en-us/articles/pintool-downloads).
+2. Extract Pin from the archive.  Set the environment variable `PIN_ROOT` to point to Pin's base directory.  This directory will henceforth be referred to as `$PIN_ROOT`.
+3. Checkout the toolset into an appropriate directory.  We will refer to this directory as `TOOLS_DIR`.
+5. Navigate to the directory `$TOOLS_DIR/tracer`.
 6. Run build.sh to build both the x86-64 and x86 versions of the tracer. 
+
+### Windows ###
+(Currently Broken, needs to be updated with a library to read PE files)
+1. ~~Download and install Visual Studios 2008, 2010 or 2012~~
+2. ~~Download and install Cygwin. Be sure to install Cygwin with make from devel and git.~~
+3. ~~Add the Cygwin bin directory to Window’s path environment variable (make sure to log out and log back in or restart after adding the variable)~~
+4. ~~Download Pin 3.6+ from [Pin's download page](https://software.intel.com/en-us/articles/pintool-downloads). Note that on a Windows machine, you need visual studios to build the pintool, so make sure to download the version of PIN that corresponds with your version of Visual Studios.~~
+5. ~~Extract Pin from the archive. Set the environment variable `PIN_ROOT` to point to Pin's base directory.  This directory will henceforth be referred to as `$PIN_ROOT`.~~
+7. ~~Checkout the toolset into an appropriate directory.~~
+8. ~~If you want to trace a x86-64 program, open the Visual Studio x64 Win64 Command Prompt, while if you want to trace a x86 program, open the Visual Studio Command Prompt (note, not 64).~~
+9. ~~In the command prompt, navigate to the tracer subdirectory of the toolset.~~
+10. ~~Run build.cmd to build both the x86-64 and x86 versions of the tracer.~~
 
 ## Running ##
 
-A trace can be created for an executable by running the following command:
+A trace can be created for an executable by running the following command, where `$ARCH` is either `obj-ia32` (for the IA-32 architecture) or `obj-intel64` (for the x86-64 architecture):
 
-$PIN_BASE/pin [pin_options] -t $PIN_BASE/source/tools/toolset/tracer/$ARCH/$TRACER_LIB [tool_options] -- <program> [program_options]
+`$PIN_ROOT/pin [pin_options] -t $TOOLS_DIR/tracer/$ARCH/$TRACER_LIB [tool_options] -- <program> [program_options]`
 
 Variable         | Description
 -----------------|------------
-$PIN_BASE        | The base directory for Pin
+$PIN_ROOT        | The base directory for Pin
 pin_options      | Any [Pin command line switches](https://software.intel.com/sites/landingpage/pintool/docs/67254/Pin/html/group__KNOBS.html) to be enabled. Note, if there is self-modifying code, be sure to use the smc_strict command line switch.
 $ARCH            | The name of the obj directory that corresponds to the architecture of the program to be traced. For x86, use obj-ia32 and for x86-64 use obj-intel64.
 $TRACER_LIB      | The name of the tracer's dynamically linked library. On Windows, the name is Tracer.dll while on Linux, the name is Tracer.so.
